@@ -15,7 +15,7 @@ function App() {
     // <I18nLanguageProvider>
     //   <ThemeProvider>
        <View>
-          <Text>Open up App.tsx to start working on your app!</Text>
+          <Text>Hola mundo</Text>
           <StatusBar />
         </View>
     //   </ThemeProvider>
