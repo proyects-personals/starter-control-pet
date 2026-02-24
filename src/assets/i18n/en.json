@@ -1,0 +1,14 @@
+{
+  "home": {
+    "title": "Home",
+    "description": "Welcome to the application"
+  },
+  "auth": {
+    "login": {
+      "title": "Login"
+    },
+    "register": {
+      "title": "Register"
+    }
+  }
+}
