@@ -1,0 +1,1 @@
+export * from './ii18n.interactor';
