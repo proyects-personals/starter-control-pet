@@ -9,36 +9,34 @@ import {
   LanguageEnum,
   LanguageProviderProps,
   translationsMap,
-} from '@/app/domain';
+} from '@domain';
+import { storage } from '@infrastructure';
+
+
+const LANGUAGE_KEY = 'language';
 
 /**
  * I18nLanguageProvider
  *
- * @description
- * Proveedor de contexto para la internacionalización (i18n).
- * Gestiona el idioma actual, persistencia en localStorage
- * y exposición de traducciones tipadas.
- *
- * @version 1.0.0
+ * Provider i18n con almacenamiento nativo en memoria (MMKV).
+ * Ultra rápido, sin AsyncStorage.
  */
 export const I18nLanguageProvider: React.FC<LanguageProviderProps> = ({
   children,
 }) => {
-  const [languageState, setLanguageState] =
-    useState<LanguageEnum>(getInitialLanguage());
+  const [languageState, setLanguageState] = useState<LanguageEnum>(
+    LanguageEnum.EN
+  );
 
-  useEffect(syncLanguageFromStorage, [languageState]);
+  useEffect(() => {
+    const storedLanguage = storage.getString(LANGUAGE_KEY);
+    if (storedLanguage) {
+      setLanguageState(storedLanguage as LanguageEnum);
+    }
+  }, []);
 
-  /**
-   * setLanguage
-   *
-   * @description
-   * Cambia el idioma de la aplicación y lo persiste en localStorage.
-   *
-   * @param {LanguageEnum} lang - Idioma seleccionado
-   */
   const setLanguage = (lang: LanguageEnum): void => {
-    persistLanguage(lang);
+    storage.set(LANGUAGE_KEY, lang);
     setLanguageState(lang);
   };
 
@@ -56,47 +54,4 @@ export const I18nLanguageProvider: React.FC<LanguageProviderProps> = ({
       {children}
     </I18nLanguageContext.Provider>
   );
-
-  /**
-   * getInitialLanguage
-   *
-   * @description
-   * Obtiene el idioma inicial desde localStorage o retorna el idioma por defecto.
-   *
-   * @returns {LanguageEnum}
-   */
-  function getInitialLanguage(): LanguageEnum {
-    return (
-      (localStorage.getItem('language') as LanguageEnum) ??
-      LanguageEnum.EN
-    );
-  }
-
-  /**
-   * persistLanguage
-   *
-   * @description
-   * Guarda el idioma en localStorage.
-   *
-   * @param {LanguageEnum} lang
-   */
-  function persistLanguage(lang: LanguageEnum): void {
-    localStorage.setItem('language', lang);
-  }
-
-  /**
-   * syncLanguageFromStorage
-   *
-   * @description
-   * Sincroniza el estado del idioma con el valor almacenado en localStorage.
-   * Evita desincronización entre pestañas o refrescos.
-   */
-  function syncLanguageFromStorage(): void {
-    const storedLanguage =
-      localStorage.getItem('language') as LanguageEnum | null;
-
-    if (storedLanguage && storedLanguage !== languageState) {
-      setLanguageState(storedLanguage);
-    }
-  }
 };

@@ -1,11 +1,8 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "@react-native/typescript-config",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "strict": true,
-
-    "types": ["react", "react-native"],
-
+    "jsx": "react",
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -23,8 +20,6 @@
       "@presentation/*": ["src/app/presentation/*"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "babel.config.js"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "android", "ios"]
 }

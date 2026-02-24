@@ -1,69 +1,57 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-} from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Appearance } from 'react-native';
 
-import { ThemeContext, ThemeEnum, ThemeProviderProps } from '@/app/domain';
+import {
+  ThemeContext,
+  ThemeEnum,
+  ThemeProviderProps,
+} from '@domain';
 
-/**
- * ThemeProvider
- *
- * @description
- * Proveedor del contexto de tema.
- * Por defecto utiliza el tema del sistema operativo (celular / PC).
- * Una vez que el usuario selecciona un tema, este se persiste
- * y tiene prioridad sobre el tema del sistema.
- *
- * @version 1.0.0
- */
+import { storage } from '@infrastructure';
+
+const THEME_KEY = 'theme';
+const USER_PREF_KEY = 'hasUserThemePreference';
+
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setThemeState] = useState<ThemeEnum>(getInitialTheme());
-  const [hasUserPreference, setHasUserPreference] =
-    useState<boolean>(hasStoredTheme());
+  const [theme, setThemeState] = useState<ThemeEnum>(ThemeEnum.LIGHT);
+  const [hasUserPreference, setHasUserPreference] = useState<boolean>(false);
 
-  /**
-   * Persistencia SOLO cuando el usuario ya eligió un tema.
-   */
+  useEffect(() => {
+    const storedTheme = storage.getString(THEME_KEY);
+    const storedPreference = storage.getBoolean(USER_PREF_KEY);
+
+    if (storedTheme && storedPreference) {
+      setHasUserPreference(true);
+      setThemeState(storedTheme as ThemeEnum);
+      return;
+    }
+
+    const systemTheme = Appearance.getColorScheme();
+    setThemeState(
+      systemTheme === 'dark' ? ThemeEnum.DARK : ThemeEnum.LIGHT
+    );
+  }, []);
+
   useEffect(() => {
     if (hasUserPreference) {
-      persistTheme(theme);
+      storage.set(THEME_KEY, theme);
+      storage.set(USER_PREF_KEY, true);
     }
   }, [theme, hasUserPreference]);
 
-  /**
-   * setTheme
-   *
-   * @description
-   * Establece el tema elegido por el usuario y lo marca
-   * como preferencia persistente.
-   *
-   * @param {ThemeEnum} newTheme
-   */
   const setTheme = (newTheme: ThemeEnum): void => {
     setHasUserPreference(true);
     setThemeState(newTheme);
   };
 
-  /**
-   * toggleTheme
-   *
-   * @description
-   * Alterna entre los temas LIGHT y DARK.
-   * Este cambio se considera una acción del usuario
-   * y se persiste automáticamente.
-   */
   const toggleTheme = (): void => {
     setHasUserPreference(true);
-    setThemeState((prev) =>
+    setThemeState(prev =>
       prev === ThemeEnum.DARK ? ThemeEnum.LIGHT : ThemeEnum.DARK
     );
   };
 
-  /**
-   * Valor memorizado del contexto.
-   */
-  const contextValue = useMemo(
+  const value = useMemo(
     () => ({
       theme,
       setTheme,
@@ -73,71 +61,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   );
 
   return (
-    <ThemeContext.Provider value={contextValue}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
-
-  /**
-   * getInitialTheme
-   *
-   * @description
-   * Determina el tema inicial siguiendo este orden:
-   * 1. Tema guardado por el usuario
-   * 2. Tema del sistema operativo
-   *
-   * @returns {ThemeEnum}
-   */
-  function getInitialTheme(): ThemeEnum {
-    const storedTheme = localStorage.getItem('theme') as ThemeEnum | null;
-    if (storedTheme) {
-      return storedTheme;
-    }
-
-    return getSystemTheme();
-  }
-
-  /**
-   * hasStoredTheme
-   *
-   * @description
-   * Indica si el usuario ya ha seleccionado un tema previamente.
-   *
-   * @returns {boolean}
-   */
-  function hasStoredTheme(): boolean {
-    return localStorage.getItem('theme') !== null;
-  }
-
-  /**
-   * getSystemTheme
-   *
-   * @description
-   * Obtiene el tema preferido del sistema operativo.
-   * Fallback seguro a LIGHT si no se puede detectar.
-   *
-   * @returns {ThemeEnum}
-   */
-  function getSystemTheme(): ThemeEnum {
-    if (
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches
-    ) {
-      return ThemeEnum.DARK;
-    }
-
-    return ThemeEnum.LIGHT;
-  }
-
-  /**
-   * persistTheme
-   *
-   * @description
-   * Persiste el tema elegido por el usuario.
-   *
-   * @param {ThemeEnum} theme
-   */
-  function persistTheme(theme: ThemeEnum): void {
-    localStorage.setItem('theme', theme);
-  }
 };

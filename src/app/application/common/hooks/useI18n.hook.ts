@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { I18nLanguageContext } from '@/app/domain';
+import { I18nLanguageContext } from '@domain';
 
 /**
  * useI18nLanguage

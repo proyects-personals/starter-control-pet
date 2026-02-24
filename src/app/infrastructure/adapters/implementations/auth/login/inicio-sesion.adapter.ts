@@ -1,10 +1,10 @@
-import { IInicioSesionAdapter } from '@/app/application';
+import { IInicioSesionAdapter } from '@application';
 import {
   errorMesaggeStringUtil,
   InicioSesionParametersEntity,
   InicioSesionResponseEntity,
   SignUpStepEnum
-} from '@/app/domain';
+} from '@domain';
 import { signIn, SignInOutput, confirmSignUp, ConfirmSignUpInput, ConfirmSignUpOutput } from 'aws-amplify/auth';
 
 /**
