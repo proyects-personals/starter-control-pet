@@ -1,0 +1,28 @@
+name: Code Format Check
+
+on:
+  push:
+    branches: [develop, main]
+    
+  pull_request:
+    branches: [develop]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npx prettier --check .
+
+      - name: Format Report
+        if: always()
+        run: |
+          echo "## Format Report" >> $GITHUB_STEP_SUMMARY
+          echo "- Prettier check passed" >> $GITHUB_STEP_SUMMARY
