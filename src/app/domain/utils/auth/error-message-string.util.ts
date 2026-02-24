@@ -1,4 +1,4 @@
-import { MESSAGE_PREFIX_LENGTH, PATTERN_NOT_FOUND } from '@domain';
+import { MESSAGE_PREFIX_LENGTH, PATTERN_NOT_FOUND } from '../../constants';
 import { errorMapTranslatedUtil } from './error-map-translated.util';
 
 export function errorMesaggeStringUtil(error: unknown): string {

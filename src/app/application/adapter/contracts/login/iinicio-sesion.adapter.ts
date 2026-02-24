@@ -1,4 +1,4 @@
-import { InicioSesionParametersEntity, InicioSesionResponseEntity } from "@/app/domain";
+import { InicioSesionParametersEntity, InicioSesionResponseEntity } from "@domain";
 
 /**
  * Interfaz para el adaptador encargado de manejar el inicio de sesión.

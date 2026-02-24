@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ThemeContext } from '@/app/domain';
+import { ThemeContext } from '@domain';
 
 /**
  * useTheme
