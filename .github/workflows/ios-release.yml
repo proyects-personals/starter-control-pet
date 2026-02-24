@@ -1,0 +1,19 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ios:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: cd ios && xcodebuild -workspace *.xcworkspace -scheme * -sdk iphoneos
