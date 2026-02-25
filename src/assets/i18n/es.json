@@ -1,0 +1,14 @@
+{
+  "home": {
+    "title": "Inicio",
+    "description": "Bienvenido a la aplicación"
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión"
+    },
+    "register": {
+      "title": "Registrarse"
+    }
+  }
+}

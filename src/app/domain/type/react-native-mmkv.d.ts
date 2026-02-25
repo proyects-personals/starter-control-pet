@@ -1,0 +1,1 @@
+react-native-mmkv.d.ts

@@ -1,0 +1,25 @@
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "jsx": "react",
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+
+      "@domain": ["src/app/domain/index.ts"],
+      "@domain/*": ["src/app/domain/*"],
+
+      "@application": ["src/app/application/index.ts"],
+      "@application/*": ["src/app/application/*"],
+
+      "@infrastructure": ["src/app/infrastructure/index.ts"],
+      "@infrastructure/*": ["src/app/infrastructure/*"],
+
+      "@presentation": ["src/app/presentation/index.ts"],
+      "@presentation/*": ["src/app/presentation/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "android", "ios"]
+}
