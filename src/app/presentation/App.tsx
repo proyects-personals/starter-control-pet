@@ -1,15 +1,14 @@
-import { StatusBar, Text, View } from 'react-native';
-import { ThemeProvider } from '@application';
 import React from 'react';
+import { StatusBar, View, Text } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import Routes from './routers/routers';
 
 function App() {
   return (
-    <ThemeProvider>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' }}>
-        <Text>Hola mundo</Text>
+    <NavigationContainer>
         <StatusBar />
-      </View>
-    </ThemeProvider>
+        <Routes />
+    </NavigationContainer>
   );
 }
 
