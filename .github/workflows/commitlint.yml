@@ -1,0 +1,31 @@
+name: Commit Message Convention
+
+on:
+  push:
+    branches: [develop, main]
+    
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npx commitlint --from=HEAD~20 --to=HEAD
+
+      - name: Commit Report
+        if: always()
+        run: |
+          echo "## 🧾 Commit Convention Report" >> $GITHUB_STEP_SUMMARY
+          git log --oneline origin/${{ github.base_ref }}..HEAD >> $GITHUB_STEP_SUMMARY

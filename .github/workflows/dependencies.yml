@@ -1,0 +1,31 @@
+name: Dependency Health
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: NPM Audit
+        run: npm audit --audit-level=high || true
+
+      - name: Outdated Packages
+        run: npm outdated || true
+
+      - name: Dependency Report
+        if: always()
+        run: |
+          echo "## 📦 Dependency Report" >> $GITHUB_STEP_SUMMARY
+          npm outdated >> $GITHUB_STEP_SUMMARY || true
