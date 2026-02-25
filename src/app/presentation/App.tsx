@@ -1,15 +1,24 @@
 import React from 'react';
-import { StatusBar, View, Text } from 'react-native';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import Routes from './routers/routers';
+import { PaperProvider } from 'react-native-paper';
+import { AppThemeProvider, useAppTheme } from '../application';
 
-function App() {
+
+function AppContent() {
+  
   return (
-    <NavigationContainer>
-        <StatusBar />
+      <NavigationContainer>
         <Routes />
-    </NavigationContainer>
+      </NavigationContainer>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <AppThemeProvider>
+      <AppContent />
+    </AppThemeProvider>
+  );
+}

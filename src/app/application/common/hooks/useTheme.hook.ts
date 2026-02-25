@@ -1,10 +1,12 @@
-import { ThemeContext, ThemeContextInterface } from "@domain";
 import { useContext } from "react";
+import { ThemeContext } from "../contexts";
 
-/**
- * Hook para consumir ThemeContext
- * @public
- * @version 1.0.0
- * @returns {ThemeContextProps} Objeto con theme, themeName, setTheme y columns
- */
-export const useTheme = (): ThemeContextInterface => useContext(ThemeContext);
+export const useAppTheme = () => {
+  const context = useContext(ThemeContext);
+
+  if (!context) {
+    throw new Error('useAppTheme debe usarse dentro de AppThemeProvider');
+  }
+
+  return context;
+};

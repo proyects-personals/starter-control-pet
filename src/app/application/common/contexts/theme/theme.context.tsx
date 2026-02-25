@@ -1,59 +1,44 @@
-import { getColumns, ThemeContext, themeMap, ThemeName } from '@domain';
-import React, { ReactNode, useState, useEffect, useMemo, useCallback } from 'react';
-import { Appearance, useWindowDimensions } from 'react-native';
+import React, { createContext, useContext, useMemo, useState } from 'react';
+import { PaperProvider } from 'react-native-paper';
+import { lightTheme } from '../../styles/theme.light';
+import { darkTheme } from '../../styles/theme.dark';
+import { oceanTheme } from '../../styles/theme.ocean';
 
-interface ThemeProviderProps {
-  children: ReactNode;
-}
+export type AppThemeName = 'light' | 'dark' | 'ocean';
 
-/**
- * Componente proveedor de tema global
- * @public
- * @param {ThemeProviderProps} props - Props del componente
- * @version 1.0.0
- */
-export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const { width } = useWindowDimensions();
+export const themes: Record<AppThemeName, any> = {
+  light: lightTheme,
+  dark: darkTheme,
+  ocean: oceanTheme,
+};
 
-  const getDefaultTheme = useCallback((): ThemeName => {
-    return Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
-  }, []);
+type ThemeContextType = {
+  theme: AppThemeName;
+  setTheme: (theme: AppThemeName) => void;
+};
 
-  const [themeName, setThemeName] = useState<ThemeName>(getDefaultTheme);
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-  const theme = useMemo(() => themeMap[themeName], [themeName]);
+export const AppThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setTheme] = useState<AppThemeName>('light');
 
-  /**
-   * Cambia el tema activo
-   * @public
-   * @param {ThemeName} name - Nombre del tema a activar
-   */
-  const setTheme = useCallback((name: ThemeName) => setThemeName(name), []);
-
-  /**
-   * Calcula columnas según ancho y tema
-   * @private
-   * @returns {number} Columnas actuales
-   */
-  const columns = useMemo(() => getColumns(theme, width), [theme, width]);
-
-  /**
-   * @private
-   * Suscripción al cambio de colorScheme del sistema
-   * Solo aplica si el usuario no eligió tema personalizado
-   */
-  useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      if (themeName === 'light' || themeName === 'dark') {
-        setTheme(colorScheme === 'dark' ? 'dark' : 'light');
-      }
-    });
-    return () => subscription.remove();
-  }, [themeName]);
+  const paperTheme = useMemo(() => themes[theme], [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, themeName, setTheme, columns }}>
-      {children}
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      <PaperProvider theme={paperTheme}>
+        {children}
+      </PaperProvider>
     </ThemeContext.Provider>
   );
+};
+
+export const useThemeController = () => {
+  const context = useContext(ThemeContext);
+
+  if (!context) {
+    throw new Error('useThemeController debe usarse dentro de AppThemeProvider');
+  }
+
+  return context;
 };
