@@ -1,25 +1,15 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import { StatusBar, Text, useColorScheme, View } from 'react-native';
-import { I18nLanguageProvider, ThemeProvider } from '@application';
+import { StatusBar, Text, View } from 'react-native';
+import { ThemeProvider } from '@application';
 import React from 'react';
 
 function App() {
-
   return (
-    // <I18nLanguageProvider>
-    //   <ThemeProvider>
-       <View>
-          <Text>Hola mundo</Text>
-          <StatusBar />
-        </View>
-    //   </ThemeProvider>
-    // </I18nLanguageProvider>
+    <ThemeProvider>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' }}>
+        <Text>Hola mundo</Text>
+        <StatusBar />
+      </View>
+    </ThemeProvider>
   );
 }
 

@@ -1,67 +1,58 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Appearance } from 'react-native';
+import { getColumns, ThemeContext, themeMap, ThemeName } from '@domain';
+import React, { ReactNode, useState, useEffect, useMemo, useCallback } from 'react';
+import { Appearance, useWindowDimensions } from 'react-native';
 
-import {
-  ThemeContext,
-  ThemeEnum,
-  ThemeProviderProps,
-} from '@domain';
+interface ThemeProviderProps {
+  children: ReactNode;
+}
 
-import { storage } from '@infrastructure';
+/**
+ * Componente proveedor de tema global
+ * @public
+ * @param {ThemeProviderProps} props - Props del componente
+ * @version 1.0.0
+ */
+export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+  const { width } = useWindowDimensions();
 
-const THEME_KEY = 'theme';
-const USER_PREF_KEY = 'hasUserThemePreference';
-
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setThemeState] = useState<ThemeEnum>(ThemeEnum.LIGHT);
-  const [hasUserPreference, setHasUserPreference] = useState<boolean>(false);
-
-  useEffect(() => {
-    const storedTheme = storage.getString(THEME_KEY);
-    const storedPreference = storage.getBoolean(USER_PREF_KEY);
-
-    if (storedTheme && storedPreference) {
-      setHasUserPreference(true);
-      setThemeState(storedTheme as ThemeEnum);
-      return;
-    }
-
-    const systemTheme = Appearance.getColorScheme();
-    setThemeState(
-      systemTheme === 'dark' ? ThemeEnum.DARK : ThemeEnum.LIGHT
-    );
+  const getDefaultTheme = useCallback((): ThemeName => {
+    return Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
   }, []);
 
+  const [themeName, setThemeName] = useState<ThemeName>(getDefaultTheme);
+
+  const theme = useMemo(() => themeMap[themeName], [themeName]);
+
+  /**
+   * Cambia el tema activo
+   * @public
+   * @param {ThemeName} name - Nombre del tema a activar
+   */
+  const setTheme = useCallback((name: ThemeName) => setThemeName(name), []);
+
+  /**
+   * Calcula columnas según ancho y tema
+   * @private
+   * @returns {number} Columnas actuales
+   */
+  const columns = useMemo(() => getColumns(theme, width), [theme, width]);
+
+  /**
+   * @private
+   * Suscripción al cambio de colorScheme del sistema
+   * Solo aplica si el usuario no eligió tema personalizado
+   */
   useEffect(() => {
-    if (hasUserPreference) {
-      storage.set(THEME_KEY, theme);
-      storage.set(USER_PREF_KEY, true);
-    }
-  }, [theme, hasUserPreference]);
-
-  const setTheme = (newTheme: ThemeEnum): void => {
-    setHasUserPreference(true);
-    setThemeState(newTheme);
-  };
-
-  const toggleTheme = (): void => {
-    setHasUserPreference(true);
-    setThemeState(prev =>
-      prev === ThemeEnum.DARK ? ThemeEnum.LIGHT : ThemeEnum.DARK
-    );
-  };
-
-  const value = useMemo(
-    () => ({
-      theme,
-      setTheme,
-      toggleTheme,
-    }),
-    [theme]
-  );
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      if (themeName === 'light' || themeName === 'dark') {
+        setTheme(colorScheme === 'dark' ? 'dark' : 'light');
+      }
+    });
+    return () => subscription.remove();
+  }, [themeName]);
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider value={{ theme, themeName, setTheme, columns }}>
       {children}
     </ThemeContext.Provider>
   );
